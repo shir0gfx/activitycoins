@@ -1,0 +1,10 @@
+name: ActivityCoins
+version: 1.0
+author: ColorizedMind
+website: http://www.colorizedmind.de
+main: de.colorizedmind.activitycoins.ActivityCoins
+depend: [Vault]
+
+commands:
+   activity:
+     description: View activity
