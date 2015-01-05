@@ -1,6 +1,8 @@
 package de.colorizedmind.activitycoins;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -8,6 +10,7 @@ import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,6 +25,7 @@ public class ActivityCoins extends JavaPlugin {
 	public final static String PREFIX = ChatColor.GOLD + "[ActivityCoins] " + ChatColor.GRAY;
 	
 	private Map<UUID, Double> activities = new HashMap<UUID, Double>();
+	private Map<UUID, List<Location>> activityLogs = new HashMap<UUID, List<Location>>();
 	private Economy econ = null;
 	private long lastPayout;
 	
@@ -29,14 +33,15 @@ public class ActivityCoins extends JavaPlugin {
 		
 		// Load config
 		getConfig().addDefault("interval", 15);
+		getConfig().addDefault("activityLogSize", 5);
 		getConfig().addDefault("worth.chat", 1);
 		getConfig().addDefault("worth.command", 0.1);
 		getConfig().addDefault("worth.blockplace", 2);
 		getConfig().addDefault("worth.blockbreak", 1);
-		getConfig().addDefault("worth.interaction", 0.5);
+		getConfig().addDefault("worth.kill", 1);
 		getConfig().addDefault("worth.max", 1000);
 		getConfig().addDefault("income.min", 0);
-		getConfig().addDefault("income.max", 10);
+		getConfig().addDefault("income.max", 500);
 		getConfig().addDefault("logging", true);
 		getConfig().addDefault("announce", true);
 				
@@ -66,10 +71,6 @@ public class ActivityCoins extends JavaPlugin {
 		}, getConfig().getInt("interval") * 20 * 60, getConfig().getInt("interval") * 20 * 60);
 	}
 	
-	public Map<UUID, Double> getActivities() {
-		return activities;
-	}
-	
 	private boolean setupEconomy() {
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
 			return false;
@@ -82,19 +83,74 @@ public class ActivityCoins extends JavaPlugin {
 		return econ != null;
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String arg2, String[] args) {
-		if(sender instanceof Player) {
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		if(sender instanceof Player && cmd.getName().equalsIgnoreCase("activity")) {
 			Player player = (Player) sender;
-			if(cmd.getName().equalsIgnoreCase("activity")) {
-				
-				double percent = round(getActivities().get(player.getUniqueId()), 2) / getConfig().getDouble("worth.max");
-				double timeToPayout = getConfig().getInt("interval") - (System.currentTimeMillis() - lastPayout) / 60 / 1000;
-				
-				sender.sendMessage(ActivityCoins.PREFIX + "Aktivität: " + drawChart(percent));
-				sender.sendMessage(ActivityCoins.PREFIX + "Payout in: " + (int) round(timeToPayout, 0) + " Minuten");
+			double maxPoints = getConfig().getDouble("worth.max");
+			double points = 0;
+			
+			if(activities.containsKey(player.getUniqueId())) {
+				points = (double) activities.get(player.getUniqueId());
 			}
+			
+			if (maxPoints < points) {
+				points = maxPoints;
+			}
+			
+			double reachedPercent = points / maxPoints;
+			double timeToPayout = getConfig().getInt("interval") - (System.currentTimeMillis() - lastPayout) / 60 / 1000;
+			
+			sender.sendMessage(ActivityCoins.PREFIX + "Aktivität: " + drawChart(reachedPercent));
+			sender.sendMessage(ActivityCoins.PREFIX + "Payout in: " + (int) round(timeToPayout, 0) + " Minuten");
+			
+			return true;
 		}
-		return true;
+		return false;
+	}
+	
+	public void addPlayer(Player player) {
+		if (!activities.containsKey(player.getUniqueId())) {
+			activities.put(player.getUniqueId(), 0.0);
+		}
+		if (!activityLogs.containsKey(player.getUniqueId())) {
+			activityLogs.put(player.getUniqueId(), new ArrayList<Location>());
+		}
+	}
+	
+	public void removePlayer(Player player) {
+		activities.remove(player.getUniqueId());
+		activityLogs.remove(player.getUniqueId());
+	}
+	
+	public void addBlockActivity(Player player, Location loc, Double worth) {
+		addPlayer(player);
+		
+		// Prevent instant block place / destroy
+		if (activityLogs.get(player.getUniqueId()).contains(loc)) {
+			return;
+		}
+		
+		// Remove oldest log entry if history is full
+		if(activityLogs.get(player.getUniqueId()).size() >= this.getConfig().getInt("activityLogSize")) {
+			activityLogs.get(player.getUniqueId()).remove(0);
+		}
+		
+		// Log new location
+		activityLogs.get(player.getUniqueId()).add(loc);
+		
+		// Add worth to activity
+		double getCurrent = activities.get(player.getUniqueId());
+		getCurrent = getCurrent + worth;
+		activities.put(player.getUniqueId(), getCurrent);
+	}
+	
+	public void addActivity(Player player, Double worth) {
+		addPlayer(player);
+
+		// Add worth to activity
+		double getCurrent = activities.get(player.getUniqueId());
+		getCurrent = getCurrent + worth;
+		activities.put(player.getUniqueId(), getCurrent);
 	}
 
 	private void handleActivity(Player player) {
@@ -108,55 +164,51 @@ public class ActivityCoins extends JavaPlugin {
 				points = (double) activities.get(player.getUniqueId());
 			}
 			
-			if (maxPoints <= points) {
-				payout(player.getUniqueId(), maxIncome, 1);
+			if (maxPoints < points) {
+				points = maxPoints;
+			}
+			
+			double reachedPercent = points / maxPoints;
+			double reachedMoney = maxIncome * reachedPercent;
+			
+			if (reachedMoney < minIncome) {
+				payout(player, minIncome, reachedPercent);
 			} else {
-				double reachedPercent = points / maxPoints;
-				double reachedMoney = maxIncome * reachedPercent;
-				
-				if (reachedMoney < minIncome) {
-					payout(player.getUniqueId(), minIncome, 0);
-				} else {
-					payout(player.getUniqueId(), reachedMoney, reachedPercent);
-				}					
+				payout(player, reachedMoney, reachedPercent);
 			}
 			
 			activities.put(player.getUniqueId(), 0.0);
+		} else {
+			removePlayer(player);
 		}
 	}
 	
-	private void payout(UUID playerUUID, double amount, double percent) {
-		
-		Player player = getServer().getPlayer(playerUUID);
-		if(player != null) {
-		
-			econ.depositPlayer(player, round(amount, 2));
-			if(getConfig().getBoolean("announce")) {
-				player.sendMessage(PREFIX + "Aktivität: " + drawChart(percent));
-				player.sendMessage(PREFIX + "Payout: " + round(amount, 2) + " " + econ.currencyNamePlural());
-			}
-			if(getConfig().getBoolean("logging")) {
-				getLogger().info("[ActivityCoins] Payout: " + round(amount, 2) + " " + econ.currencyNamePlural() + " for player " + player.getName());
-			}
-			
+	private void payout(Player player, double amount, double percent) {
+		econ.depositPlayer(player, round(amount, 2));
+		if(getConfig().getBoolean("announce")) {
+			player.sendMessage(PREFIX + "Aktivität: " + drawChart(percent));
+			player.sendMessage(PREFIX + "Payout: " + round(amount, 2) + " " + econ.currencyNamePlural());
+		}
+		if(getConfig().getBoolean("logging")) {
+			getLogger().info("[ActivityCoins] Payout: " + round(amount, 2) + " " + econ.currencyNamePlural() + " for player " + player.getName());
 		}
 	}
 	
 	public String drawChart(double percent) {
 		String output = ChatColor.DARK_GRAY + "[";
-		if(percent > 0.7) {
+		if(percent > 0.67) {
 			output = output + ChatColor.GREEN;
-		} else if(percent < 0.3) {
+		} else if(percent < 0.33) {
 			output = output + ChatColor.RED;
 		} else {
 			output = output + ChatColor.YELLOW;
 		}
 		int length = (int) (20 * percent);
-		for(int i = 0; i < length; i++) {
+		for(int i = 1; i <= length; i++) {
 			output = output + "|";
 		}
 		output = output + ChatColor.DARK_GRAY;
-		for(int i = 20; i >= length; i--) {
+		for(int i = 20; i > length; i--) {
 			output = output + ".";
 		}
 		output = output + "] " + round(percent * 100, 2) + "%";
