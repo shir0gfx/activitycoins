@@ -187,10 +187,10 @@ public class ActivityCoins extends JavaPlugin {
 		econ.depositPlayer(player, round(amount, 2));
 		if(getConfig().getBoolean("announce")) {
 			player.sendMessage(PREFIX + "Aktivität: " + drawChart(percent));
-			player.sendMessage(PREFIX + "Payout: " + round(amount, 2) + " " + econ.currencyNamePlural());
+			player.sendMessage(PREFIX + "Payout: " + econ.format(round(amount, 2)));
 		}
 		if(getConfig().getBoolean("logging")) {
-			getLogger().info("[ActivityCoins] Payout: " + round(amount, 2) + " " + econ.currencyNamePlural() + " for player " + player.getName());
+			getLogger().info("[ActivityCoins] Payout: " + econ.format(round(amount, 2)));
 		}
 	}
 	
