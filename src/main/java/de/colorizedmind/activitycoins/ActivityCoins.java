@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -19,6 +18,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.colorizedmind.activitycoins.listeners.PlayerListener;
+import de.colorizedmind.activitycoins.tasks.PayoutTask;
 
 public class ActivityCoins extends JavaPlugin {
 	
@@ -61,14 +61,8 @@ public class ActivityCoins extends JavaPlugin {
 		
 		// Register payout timer
 		lastPayout = System.currentTimeMillis();
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			public void run() {
-				lastPayout = System.currentTimeMillis();
-				for(Player online : Bukkit.getOnlinePlayers()){
-					handleActivity(online);
-				}
-			}
-		}, getConfig().getInt("interval") * 20 * 60, getConfig().getInt("interval") * 20 * 60);
+		int interval = getConfig().getInt("interval") * 20 * 60;
+		new PayoutTask(this).runTaskTimer(this, interval, interval);
 	}
 	
 	private boolean setupEconomy() {
@@ -153,7 +147,7 @@ public class ActivityCoins extends JavaPlugin {
 		activities.put(player.getUniqueId(), getCurrent);
 	}
 
-	private void handleActivity(Player player) {
+	public void handleActivity(Player player) {
 		if (player.isOnline()) {
 			double maxPoints = getConfig().getDouble("worth.max");
 			double maxIncome = getConfig().getDouble("income.max");
@@ -221,6 +215,14 @@ public class ActivityCoins extends JavaPlugin {
 		}
 		decimals = Math.pow(10, decimals);
 		return (double) Math.round(input * decimals) / decimals;
+	}
+	
+	public void setLastPayout(long lastPayout) {
+		this.lastPayout = lastPayout;
+	}
+	
+	public long getLastPayout() {
+		return this.lastPayout;
 	}
 
 }
