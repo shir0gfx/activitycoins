@@ -43,7 +43,7 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if(isCancelled(event.getPlayer())) {
+		if(hasNoSurvivalMode(event.getPlayer())) {
 			return;
 		}
 		plugin.addBlockActivity(
@@ -54,7 +54,7 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if(isCancelled(event.getPlayer())) {
+		if(hasNoSurvivalMode(event.getPlayer())) {
 			return;
 		}
 		plugin.addBlockActivity(
@@ -65,9 +65,6 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onChat(AsyncPlayerChatEvent event) {
-		if(isCancelled(event.getPlayer())) {
-			return;
-		}
 		plugin.addActivity(
 				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.chat"));
@@ -75,9 +72,6 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-		if(isCancelled(event.getPlayer())) {
-			return;
-		}
 		plugin.addActivity(
 				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.command"));
@@ -90,7 +84,7 @@ public class PlayerListener implements Listener {
 			EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) entity.getLastDamageCause();
 			if(damageEvent.getDamager() instanceof Player) {
 				Player player = (Player) damageEvent.getDamager();
-				if(isCancelled(player)) {
+				if(hasNoSurvivalMode(player)) {
 					return;
 				}
 				plugin.addActivity(
@@ -100,7 +94,7 @@ public class PlayerListener implements Listener {
 		}
 	}
 
-	private boolean isCancelled(Player player) {
+	private boolean hasNoSurvivalMode(Player player) {
 		return player.getGameMode() != GameMode.SURVIVAL;
 	}
 
