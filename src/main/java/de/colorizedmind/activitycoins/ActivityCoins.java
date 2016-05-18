@@ -84,7 +84,7 @@ public class ActivityCoins extends JavaPlugin {
 			double points = 0;
 			
 			if(activities.containsKey(player.getUniqueId())) {
-				points = (double) activities.get(player.getUniqueId());
+				points = activities.get(player.getUniqueId());
 			}
 			
 			if (maxPoints < points) {
@@ -216,13 +216,9 @@ public class ActivityCoins extends JavaPlugin {
 		decimals = Math.pow(10, decimals);
 		return (double) Math.round(input * decimals) / decimals;
 	}
-	
+
 	public void setLastPayout(long lastPayout) {
 		this.lastPayout = lastPayout;
-	}
-	
-	public long getLastPayout() {
-		return this.lastPayout;
 	}
 
 }

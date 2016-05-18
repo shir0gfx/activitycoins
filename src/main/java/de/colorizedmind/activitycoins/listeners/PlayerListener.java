@@ -1,5 +1,6 @@
 package de.colorizedmind.activitycoins.listeners;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,67 +27,81 @@ public class PlayerListener implements Listener {
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		plugin.addPlayer(e.getPlayer());
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		plugin.addPlayer(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerQuit(PlayerQuitEvent e) {
-		plugin.removePlayer(e.getPlayer());
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		plugin.removePlayer(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerKick(PlayerKickEvent e) {
-		if (e.isCancelled()) return;
-		plugin.removePlayer(e.getPlayer());
+	public void onPlayerKick(PlayerKickEvent event) {
+		plugin.removePlayer(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onBlockPlace(BlockPlaceEvent e) {
-		if (e.isCancelled()) return;
+	public void onBlockPlace(BlockPlaceEvent event) {
+		if(isCancelled(event.getPlayer())) {
+			return;
+		}
 		plugin.addBlockActivity(
-				e.getPlayer(),
-				e.getBlock().getLocation(),
+				event.getPlayer(),
+				event.getBlock().getLocation(),
 				this.plugin.getConfig().getDouble("worth.blockplace"));
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onBlockBreak(BlockBreakEvent e) {
-		if (e.isCancelled()) return;
+	public void onBlockBreak(BlockBreakEvent event) {
+		if(isCancelled(event.getPlayer())) {
+			return;
+		}
 		plugin.addBlockActivity(
-				e.getPlayer(),
-				e.getBlock().getLocation(),
+				event.getPlayer(),
+				event.getBlock().getLocation(),
 				this.plugin.getConfig().getDouble("worth.blockbreak"));
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onChat(AsyncPlayerChatEvent e) {
-		if (e.isCancelled()) return;
+	public void onChat(AsyncPlayerChatEvent event) {
+		if(isCancelled(event.getPlayer())) {
+			return;
+		}
 		plugin.addActivity(
-				e.getPlayer(),
+				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.chat"));
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
-		if (e.isCancelled()) return;
+	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+		if(isCancelled(event.getPlayer())) {
+			return;
+		}
 		plugin.addActivity(
-				e.getPlayer(),
+				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.command"));
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
-	public void onEntityDeath(EntityDeathEvent e) {
-		Entity entity = e.getEntity();
+	public void onEntityDeath(EntityDeathEvent event) {
+		Entity entity = event.getEntity();
 		if (entity.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) entity.getLastDamageCause();
 			if(damageEvent.getDamager() instanceof Player) {
 				Player player = (Player) damageEvent.getDamager();
+				if(isCancelled(player)) {
+					return;
+				}
 				plugin.addActivity(
 						player,
 						this.plugin.getConfig().getDouble("worth.kill"));
 			}
 		}
+	}
+
+	private boolean isCancelled(Player player) {
+		return player.getGameMode() != GameMode.SURVIVAL;
 	}
 
 }
