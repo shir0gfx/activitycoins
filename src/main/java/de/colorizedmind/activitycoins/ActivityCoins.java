@@ -62,7 +62,7 @@ public class ActivityCoins extends JavaPlugin {
 		// Register payout timer
 		lastPayout = System.currentTimeMillis();
 		int interval = getConfig().getInt("interval") * 20 * 60;
-		new PayoutTask(this).runTaskTimer(this, interval, interval);
+		new PayoutTask(this).runTaskTimerAsynchronously(this, interval, interval);
 	}
 	
 	private boolean setupEconomy() {
