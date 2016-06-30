@@ -10,11 +10,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 
 import de.colorizedmind.activitycoins.ActivityCoins;
 
@@ -69,12 +65,21 @@ public class PlayerListener implements Listener {
 				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.chat"));
 	}
-	
+
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
 		plugin.addActivity(
 				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.command"));
+	}
+
+	@EventHandler(priority=EventPriority.MONITOR)
+	public void onPlayerFishEvent(PlayerFishEvent event) {
+		if(event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+			plugin.addActivity(
+					event.getPlayer(),
+					this.plugin.getConfig().getDouble("worth.fishing"));
+		}
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)

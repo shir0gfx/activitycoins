@@ -39,6 +39,7 @@ public class ActivityCoins extends JavaPlugin {
 		getConfig().addDefault("worth.blockplace", 2);
 		getConfig().addDefault("worth.blockbreak", 1);
 		getConfig().addDefault("worth.kill", 1);
+		getConfig().addDefault("worth.fishing", 1);
 		getConfig().addDefault("worth.max", 1000);
 		getConfig().addDefault("income.min", 0);
 		getConfig().addDefault("income.max", 500);
