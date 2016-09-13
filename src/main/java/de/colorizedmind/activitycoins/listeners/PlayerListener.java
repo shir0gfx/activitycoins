@@ -73,27 +73,30 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerFishEvent(PlayerFishEvent event) {
-		if(event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
-			plugin.addActivity(
-					event.getPlayer(),
-					this.plugin.getConfig().getDouble("worth.fishing")
-			);
-		}
+
+		if(event.getState() != PlayerFishEvent.State.CAUGHT_FISH) return;
+		if(event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+
+        plugin.addActivity(
+                event.getPlayer(),
+                this.plugin.getConfig().getDouble("worth.fishing")
+        );
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
 		Entity entity = event.getEntity();
-		if (entity.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
-			EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) entity.getLastDamageCause();
-			if(damageEvent.getDamager() instanceof Player) {
-				Player player = (Player) damageEvent.getDamager();
-				plugin.addActivity(
-						player,
-						this.plugin.getConfig().getDouble("worth.kill") * getMultiplier(player)
-				);
-			}
-		}
+
+		if(!(entity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
+        EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) entity.getLastDamageCause();
+
+        if(!(damageEvent.getDamager() instanceof Player)) return;
+        Player player = (Player) damageEvent.getDamager();
+
+        plugin.addActivity(
+                player,
+                this.plugin.getConfig().getDouble("worth.kill") * getMultiplier(player)
+        );
 	}
 
 	private double getMultiplier(Player player) {
