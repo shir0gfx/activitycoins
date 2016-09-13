@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import de.colorizedmind.activitycoins.listeners.ActivityListener;
+import de.colorizedmind.activitycoins.tasks.PayoutTask;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.ChatColor;
@@ -15,9 +17,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import de.colorizedmind.activitycoins.listeners.PlayerListener;
-import de.colorizedmind.activitycoins.tasks.PayoutTask;
 
 public class ActivityCoins extends JavaPlugin {
 	
@@ -43,10 +42,10 @@ public class ActivityCoins extends JavaPlugin {
 		getConfig().addDefault("activityLogSize", 5);
 		getConfig().addDefault("worth.chat", 1);
 		getConfig().addDefault("worth.command", 0.1);
-		getConfig().addDefault("worth.blockplace", 2);
-		getConfig().addDefault("worth.blockbreak", 1);
-		getConfig().addDefault("worth.kill", 1);
-		getConfig().addDefault("worth.fishing", 1);
+		getConfig().addDefault("worth.blockPlace", 2);
+		getConfig().addDefault("worth.blockBreak", 1);
+		getConfig().addDefault("worth.kill", 4);
+		getConfig().addDefault("worth.fishing", 70);
 		getConfig().addDefault("worth.max", 1000);
 		getConfig().addDefault("income.min", 0);
 		getConfig().addDefault("income.max", 500);
@@ -59,7 +58,7 @@ public class ActivityCoins extends JavaPlugin {
 	}
 
 	private void initializeListeners() {
-		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new ActivityListener(this), this);
 	}
 
 	private void initializeEconomy() {
