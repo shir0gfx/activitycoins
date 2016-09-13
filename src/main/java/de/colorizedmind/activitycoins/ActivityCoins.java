@@ -103,8 +103,8 @@ public class ActivityCoins extends JavaPlugin {
 			double reachedPercent = points / maxPoints;
 			double timeToPayout = getConfig().getInt("interval") - (System.currentTimeMillis() - lastPayout) / 60 / 1000;
 			
-			sender.sendMessage(ActivityCoins.PREFIX + "Aktivität: " + drawChart(reachedPercent));
-			sender.sendMessage(ActivityCoins.PREFIX + "Payout in: " + (int) round(timeToPayout, 0) + " Minuten");
+			sender.sendMessage(ActivityCoins.PREFIX + "Activity: " + drawChart(reachedPercent));
+			sender.sendMessage(ActivityCoins.PREFIX + "Payout in: " + (int) round(timeToPayout, 0) + " minutes");
 			
 			return true;
 		}
@@ -173,7 +173,7 @@ public class ActivityCoins extends JavaPlugin {
 	private void payout(Player player, double amount, double percent) {
 		econ.depositPlayer(player, round(amount, 2));
 		if(getConfig().getBoolean("announce")) {
-			player.sendMessage(PREFIX + "Aktivität: " + drawChart(percent));
+			player.sendMessage(PREFIX + "Activity: " + drawChart(percent));
 			player.sendMessage(PREFIX + "Payout: " + econ.format(round(amount, 2)));
 		}
 		if(getConfig().getBoolean("logging")) {
