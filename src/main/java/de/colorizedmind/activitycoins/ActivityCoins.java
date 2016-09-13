@@ -22,7 +22,7 @@ import de.colorizedmind.activitycoins.tasks.PayoutTask;
 
 public class ActivityCoins extends JavaPlugin {
 	
-	public final static String PREFIX = ChatColor.GOLD + "[ActivityCoins] " + ChatColor.GRAY;
+	public final static String PREFIX = "§8[§6ActivityCoins§8] §7";
 	
 	private Map<UUID, Double> activities = new HashMap<UUID, Double>();
 	private Map<UUID, List<Location>> activityLogs = new HashMap<UUID, List<Location>>();
@@ -45,6 +45,8 @@ public class ActivityCoins extends JavaPlugin {
 		getConfig().addDefault("income.max", 500);
 		getConfig().addDefault("logging", true);
 		getConfig().addDefault("announce", true);
+		getConfig().addDefault("multiplier.survival", 1);
+		getConfig().addDefault("multiplier.creative", 0.5);
 				
 		getConfig().options().copyDefaults(true);
 		saveConfig();
@@ -156,7 +158,7 @@ public class ActivityCoins extends JavaPlugin {
 			double points = 0;
 			
 			if(activities.containsKey(player.getUniqueId())) {
-				points = (double) activities.get(player.getUniqueId());
+				points = activities.get(player.getUniqueId());
 			}
 			
 			if (maxPoints < points) {

@@ -39,38 +39,36 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if(hasNoSurvivalMode(event.getPlayer())) {
-			return;
-		}
 		plugin.addBlockActivity(
 				event.getPlayer(),
 				event.getBlock().getLocation(),
-				this.plugin.getConfig().getDouble("worth.blockplace"));
+				plugin.getConfig().getDouble("worth.blockplace") * getMultiplier(event.getPlayer())
+		);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if(hasNoSurvivalMode(event.getPlayer())) {
-			return;
-		}
 		plugin.addBlockActivity(
 				event.getPlayer(),
 				event.getBlock().getLocation(),
-				this.plugin.getConfig().getDouble("worth.blockbreak"));
+				this.plugin.getConfig().getDouble("worth.blockbreak") * getMultiplier(event.getPlayer())
+		);
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onChat(AsyncPlayerChatEvent event) {
 		plugin.addActivity(
 				event.getPlayer(),
-				this.plugin.getConfig().getDouble("worth.chat"));
+				this.plugin.getConfig().getDouble("worth.chat")
+		);
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
 		plugin.addActivity(
 				event.getPlayer(),
-				this.plugin.getConfig().getDouble("worth.command"));
+				this.plugin.getConfig().getDouble("worth.command")
+		);
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -78,7 +76,8 @@ public class PlayerListener implements Listener {
 		if(event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
 			plugin.addActivity(
 					event.getPlayer(),
-					this.plugin.getConfig().getDouble("worth.fishing"));
+					this.plugin.getConfig().getDouble("worth.fishing")
+			);
 		}
 	}
 
@@ -89,18 +88,22 @@ public class PlayerListener implements Listener {
 			EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) entity.getLastDamageCause();
 			if(damageEvent.getDamager() instanceof Player) {
 				Player player = (Player) damageEvent.getDamager();
-				if(hasNoSurvivalMode(player)) {
-					return;
-				}
 				plugin.addActivity(
 						player,
-						this.plugin.getConfig().getDouble("worth.kill"));
+						this.plugin.getConfig().getDouble("worth.kill") * getMultiplier(player)
+				);
 			}
 		}
 	}
 
-	private boolean hasNoSurvivalMode(Player player) {
-		return player.getGameMode() != GameMode.SURVIVAL;
+	private double getMultiplier(Player player) {
+		if(player.getGameMode() == GameMode.SURVIVAL) {
+			return this.plugin.getConfig().getDouble("multiplier.survival");
+		}
+		if(player.getGameMode() == GameMode.CREATIVE) {
+			return this.plugin.getConfig().getDouble("multiplier.creative");
+		}
+		return 0;
 	}
 
 }
