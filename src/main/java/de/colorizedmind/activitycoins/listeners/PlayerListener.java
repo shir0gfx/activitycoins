@@ -24,7 +24,7 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		plugin.addPlayer(event.getPlayer());
+		plugin.addPlayerIfNotAdded(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)

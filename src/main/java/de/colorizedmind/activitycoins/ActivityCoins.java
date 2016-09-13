@@ -13,7 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,14 +23,22 @@ public class ActivityCoins extends JavaPlugin {
 	
 	public final static String PREFIX = "§8[§6ActivityCoins§8] §7";
 	
-	private Map<UUID, Double> activities = new HashMap<UUID, Double>();
-	private Map<UUID, List<Location>> activityLogs = new HashMap<UUID, List<Location>>();
-	private Economy econ = null;
+	private Map<UUID, Double> activities = new HashMap<>();
+	private Map<UUID, List<Location>> blockLocations = new HashMap<>();
+	private Economy econ;
 	private long lastPayout;
 	
 	public void onEnable() {
-		
-		// Load config
+
+		initializeConfig();
+		initializeListeners();
+		initializeEconomy();
+		initializeTasks();
+
+		lastPayout = System.currentTimeMillis();
+	}
+
+	private void initializeConfig() {
 		getConfig().addDefault("interval", 15);
 		getConfig().addDefault("activityLogSize", 5);
 		getConfig().addDefault("worth.chat", 1);
@@ -47,23 +54,22 @@ public class ActivityCoins extends JavaPlugin {
 		getConfig().addDefault("announce", true);
 		getConfig().addDefault("multiplier.survival", 1);
 		getConfig().addDefault("multiplier.creative", 0.5);
-				
 		getConfig().options().copyDefaults(true);
 		saveConfig();
-		
-		// Register player listener
-		PluginManager pluginManager = getServer().getPluginManager();
-		pluginManager.registerEvents(new PlayerListener(this), this);
-		
-		// Load Vault
-		if (!setupEconomy() ) {
+	}
+
+	private void initializeListeners() {
+		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+	}
+
+	private void initializeEconomy() {
+		if (!setupEconomy()) {
 			getLogger().warning("Disabled due to no Vault dependency found!");
 			getServer().getPluginManager().disablePlugin(this);
-			return;
 		}
-		
-		// Register payout timer
-		lastPayout = System.currentTimeMillis();
+	}
+
+	private void initializeTasks() {
 		int interval = getConfig().getInt("interval") * 20 * 60;
 		new PayoutTask(this).runTaskTimerAsynchronously(this, interval, interval);
 	}
@@ -105,46 +111,30 @@ public class ActivityCoins extends JavaPlugin {
 		return false;
 	}
 	
-	public void addPlayer(Player player) {
+	public void addPlayerIfNotAdded(Player player) {
 		if (!activities.containsKey(player.getUniqueId())) {
 			activities.put(player.getUniqueId(), 0.0);
 		}
-		if (!activityLogs.containsKey(player.getUniqueId())) {
-			activityLogs.put(player.getUniqueId(), new ArrayList<Location>());
+		if (!blockLocations.containsKey(player.getUniqueId())) {
+			blockLocations.put(player.getUniqueId(), new ArrayList<Location>());
 		}
 	}
 	
 	public void removePlayer(Player player) {
 		activities.remove(player.getUniqueId());
-		activityLogs.remove(player.getUniqueId());
+		blockLocations.remove(player.getUniqueId());
 	}
 	
 	public void addBlockActivity(Player player, Location loc, Double worth) {
-		addPlayer(player);
-		
-		// Prevent instant block place / destroy
-		if (activityLogs.get(player.getUniqueId()).contains(loc)) {
+		if (interactsWithPreviousBlocks(player, loc)) {
 			return;
 		}
-		
-		// Remove oldest log entry if history is full
-		if(activityLogs.get(player.getUniqueId()).size() >= this.getConfig().getInt("activityLogSize")) {
-			activityLogs.get(player.getUniqueId()).remove(0);
-		}
-		
-		// Log new location
-		activityLogs.get(player.getUniqueId()).add(loc);
-		
-		// Add worth to activity
-		double getCurrent = activities.get(player.getUniqueId());
-		getCurrent = getCurrent + worth;
-		activities.put(player.getUniqueId(), getCurrent);
+        logLocation(player, loc);
+		addActivity(player, worth);
 	}
 	
 	public void addActivity(Player player, Double worth) {
-		addPlayer(player);
-
-		// Add worth to activity
+		addPlayerIfNotAdded(player);
 		double getCurrent = activities.get(player.getUniqueId());
 		getCurrent = getCurrent + worth;
 		activities.put(player.getUniqueId(), getCurrent);
@@ -191,7 +181,7 @@ public class ActivityCoins extends JavaPlugin {
 		}
 	}
 	
-	public String drawChart(double percent) {
+	private String drawChart(double percent) {
 		String output = ChatColor.DARK_GRAY + "[";
 		if(percent > 0.67) {
 			output = output + ChatColor.GREEN;
@@ -212,7 +202,7 @@ public class ActivityCoins extends JavaPlugin {
 		return output;
 	}
 	
-	public double round(double input, double decimals) {
+	private double round(double input, double decimals) {
 		if (input == 0) {
 			return (double) 0;
 		}
@@ -223,5 +213,16 @@ public class ActivityCoins extends JavaPlugin {
 	public void setLastPayout(long lastPayout) {
 		this.lastPayout = lastPayout;
 	}
+
+	private boolean interactsWithPreviousBlocks(Player player, Location loc) {
+        return blockLocations.containsKey(player.getUniqueId()) && blockLocations.get(player.getUniqueId()).contains(loc);
+    }
+
+    private void logLocation(Player player, Location loc) {
+        if(blockLocations.get(player.getUniqueId()).size() >= this.getConfig().getInt("activityLogSize")) {
+            blockLocations.get(player.getUniqueId()).remove(0);
+        }
+        blockLocations.get(player.getUniqueId()).add(loc);
+    }
 
 }
