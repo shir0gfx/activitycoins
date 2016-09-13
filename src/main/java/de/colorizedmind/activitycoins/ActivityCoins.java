@@ -12,8 +12,6 @@ import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -85,30 +83,7 @@ public class ActivityCoins extends JavaPlugin {
 		return econ != null;
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if(sender instanceof Player && cmd.getName().equalsIgnoreCase("activity")) {
-			Player player = (Player) sender;
-			double maxPoints = getConfig().getDouble("worth.max");
-			double points = 0;
-			
-			if(activities.containsKey(player.getUniqueId())) {
-				points = activities.get(player.getUniqueId());
-			}
-			
-			if (maxPoints < points) {
-				points = maxPoints;
-			}
-			
-			double reachedPercent = points / maxPoints;
-			double timeToPayout = getConfig().getInt("interval") - (System.currentTimeMillis() - lastPayout) / 60 / 1000;
-			
-			sender.sendMessage(ActivityCoins.PREFIX + "Activity: " + drawChart(reachedPercent));
-			sender.sendMessage(ActivityCoins.PREFIX + "Payout in: " + (int) round(timeToPayout, 0) + " minutes");
-			
-			return true;
-		}
-		return false;
-	}
+
 	
 	public void addPlayerIfNotAdded(Player player) {
 		if (!activities.containsKey(player.getUniqueId())) {
@@ -180,7 +155,7 @@ public class ActivityCoins extends JavaPlugin {
 		}
 	}
 	
-	private String drawChart(double percent) {
+	public String drawChart(double percent) {
 		String output = ChatColor.DARK_GRAY + "[";
 		if(percent > 0.67) {
 			output = output + ChatColor.GREEN;
@@ -224,4 +199,22 @@ public class ActivityCoins extends JavaPlugin {
         blockLocations.get(player.getUniqueId()).add(loc);
     }
 
+    public double getPoints(Player player) {
+        double maxPoints = this.getConfig().getDouble("worth.max");
+        double points = 0.0;
+
+        if(activities.containsKey(player.getUniqueId())) {
+            points = activities.get(player.getUniqueId());
+        }
+
+        if (maxPoints < points) {
+            points = maxPoints;
+        }
+
+        return points;
+    }
+
+    public long getLastPayout() {
+        return lastPayout;
+    }
 }
