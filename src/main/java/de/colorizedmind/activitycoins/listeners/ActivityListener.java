@@ -1,5 +1,6 @@
 package de.colorizedmind.activitycoins.listeners;
 
+import de.colorizedmind.activitycoins.controllers.ActivityController;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -16,39 +17,41 @@ import de.colorizedmind.activitycoins.ActivityCoins;
 
 public class ActivityListener implements Listener {
 
-	private ActivityCoins plugin;
+    private ActivityCoins plugin;
+	private ActivityController activityController;
 
-	public ActivityListener(ActivityCoins plugin) {
-		this.plugin = plugin;
+	public ActivityListener(ActivityCoins plugin, ActivityController activityController) {
+        this.plugin = plugin;
+		this.activityController = activityController;
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		plugin.addPlayerIfNotAdded(event.getPlayer());
+        activityController.addPlayerIfNotAdded(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		plugin.removePlayer(event.getPlayer());
+        activityController.removePlayer(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerKick(PlayerKickEvent event) {
-		plugin.removePlayer(event.getPlayer());
+        activityController.removePlayer(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		plugin.addBlockActivity(
+        activityController.addBlockActivity(
 				event.getPlayer(),
 				event.getBlock().getLocation(),
-				plugin.getConfig().getDouble("worth.blockplace") * getMultiplier(event.getPlayer())
+                plugin.getConfig().getDouble("worth.blockplace") * getMultiplier(event.getPlayer())
 		);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event) {
-		plugin.addBlockActivity(
+        activityController.addBlockActivity(
 				event.getPlayer(),
 				event.getBlock().getLocation(),
 				this.plugin.getConfig().getDouble("worth.blockbreak") * getMultiplier(event.getPlayer())
@@ -57,7 +60,7 @@ public class ActivityListener implements Listener {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onChat(AsyncPlayerChatEvent event) {
-		plugin.addActivity(
+        activityController.addActivity(
 				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.chat")
 		);
@@ -65,7 +68,7 @@ public class ActivityListener implements Listener {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-		plugin.addActivity(
+        activityController.addActivity(
 				event.getPlayer(),
 				this.plugin.getConfig().getDouble("worth.command")
 		);
@@ -77,7 +80,7 @@ public class ActivityListener implements Listener {
 		if(event.getState() != PlayerFishEvent.State.CAUGHT_FISH) return;
 		if(event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
 
-        plugin.addActivity(
+        activityController.addActivity(
                 event.getPlayer(),
                 this.plugin.getConfig().getDouble("worth.fishing")
         );
@@ -93,7 +96,7 @@ public class ActivityListener implements Listener {
         if(!(damageEvent.getDamager() instanceof Player)) return;
         Player player = (Player) damageEvent.getDamager();
 
-        plugin.addActivity(
+        activityController.addActivity(
                 player,
                 this.plugin.getConfig().getDouble("worth.kill") * getMultiplier(player)
         );

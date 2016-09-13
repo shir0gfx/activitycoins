@@ -1,24 +1,23 @@
 package de.colorizedmind.activitycoins.tasks;
 
+import de.colorizedmind.activitycoins.controllers.ActivityController;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import de.colorizedmind.activitycoins.ActivityCoins;
-
 public class PayoutTask extends BukkitRunnable {
 	
-	private ActivityCoins plugin;
+	private ActivityController activityController;
 	
-	public PayoutTask(ActivityCoins plugin) {
-		this.plugin = plugin;
+	public PayoutTask(ActivityController plugin) {
+		this.activityController = plugin;
 	}
 
 	@Override
 	public void run() {
-		plugin.setLastPayout(System.currentTimeMillis());
+		activityController.setLastPayout(System.currentTimeMillis());
 		for(Player player : Bukkit.getOnlinePlayers()){
-			plugin.handleActivity(player);
+			activityController.handleActivity(player);
 		}
 	}
 
