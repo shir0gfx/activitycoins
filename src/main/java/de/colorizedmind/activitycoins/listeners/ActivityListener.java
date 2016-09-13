@@ -14,11 +14,11 @@ import org.bukkit.event.player.*;
 
 import de.colorizedmind.activitycoins.ActivityCoins;
 
-public class PlayerListener implements Listener {
+public class ActivityListener implements Listener {
 
 	private ActivityCoins plugin;
 
-	public PlayerListener(ActivityCoins plugin) {
+	public ActivityListener(ActivityCoins plugin) {
 		this.plugin = plugin;
 	}
 	
