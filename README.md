@@ -27,9 +27,7 @@ This project is also available on:
 
 ## Commands
 
-```
-/activity - Display current activity
-```
+* `/activity` - Display current activity
 
 ## Permissions
 
