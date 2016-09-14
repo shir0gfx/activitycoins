@@ -26,7 +26,7 @@ public class ActivityCoins extends JavaPlugin {
 
     private void initializeConfig() {
         getConfig().addDefault("interval", 15);
-        getConfig().addDefault("activityLogSize", 5);
+        getConfig().addDefault("blockLocHistorySize", 5);
         getConfig().addDefault("worth.blockBreakSurvival", 1.0);
         getConfig().addDefault("worth.blockBreakCreative", 0.5);
         getConfig().addDefault("worth.blockPlaceSurvival", 2.0);

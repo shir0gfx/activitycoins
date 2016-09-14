@@ -16,7 +16,7 @@ public class ActivityController {
     private ActivityCoins plugin;
     private Economy econ;
     private Map<UUID, Double> activities = new HashMap<>();
-    private Map<UUID, List<Location>> blockLocations = new HashMap<>();
+    private Map<UUID, List<Location>> blockLocHistories = new HashMap<>();
     private long lastPayout;
 
     public ActivityController(ActivityCoins plugin, Economy econ) {
@@ -29,14 +29,14 @@ public class ActivityController {
         if (!activities.containsKey(player.getUniqueId())) {
             activities.put(player.getUniqueId(), 0.0);
         }
-        if (!blockLocations.containsKey(player.getUniqueId())) {
-            blockLocations.put(player.getUniqueId(), new ArrayList<Location>());
+        if (!blockLocHistories.containsKey(player.getUniqueId())) {
+            blockLocHistories.put(player.getUniqueId(), new ArrayList<Location>());
         }
     }
 
     public void removePlayer(Player player) {
         activities.remove(player.getUniqueId());
-        blockLocations.remove(player.getUniqueId());
+        blockLocHistories.remove(player.getUniqueId());
     }
 
     public void addBlockActivity(Player player, Location loc, Double worth) {
@@ -130,14 +130,14 @@ public class ActivityController {
     }
 
     private boolean interactsWithPreviousBlocks(Player player, Location loc) {
-        return blockLocations.get(player.getUniqueId()).contains(loc);
+        return blockLocHistories.get(player.getUniqueId()).contains(loc);
     }
 
     private void logLocation(Player player, Location loc) {
-        if (blockLocations.get(player.getUniqueId()).size() >= plugin.getConfig().getInt("activityLogSize")) {
-            blockLocations.get(player.getUniqueId()).remove(0);
+        if (blockLocHistories.get(player.getUniqueId()).size() >= plugin.getConfig().getInt("blockLocHistorySize")) {
+            blockLocHistories.get(player.getUniqueId()).remove(0);
         }
-        blockLocations.get(player.getUniqueId()).add(loc);
+        blockLocHistories.get(player.getUniqueId()).add(loc);
     }
 
     public double getPoints(Player player) {
