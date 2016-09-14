@@ -16,7 +16,6 @@ The following activities are available:
 This project is also available on:
 
 * [Spigot](https://www.spigotmc.org/resources/activitycoins.29296/)
-* [BukkitDev](https://dev.bukkit.org/bukkit-plugins/activitycoins/)
 
 ## Features
 
