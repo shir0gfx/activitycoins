@@ -1,4 +1,4 @@
-# ActivityCoins
+![ActivityCoins](http://i.imgur.com/qUR6wgN.png)
 
 [![Build Status](http://ci.colorizedmind.de/job/ActivityCoins/badge/icon)](http://ci.colorizedmind.de/job/ActivityCoins/)
 
