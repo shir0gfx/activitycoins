@@ -27,8 +27,10 @@ public class ActivityCoins extends JavaPlugin {
     private void initializeConfig() {
         getConfig().addDefault("interval", 15);
         getConfig().addDefault("activityLogSize", 5);
-        getConfig().addDefault("worth.blockBreak", 1.0);
-        getConfig().addDefault("worth.blockPlace", 2.0);
+        getConfig().addDefault("worth.blockBreakSurvival", 1.0);
+        getConfig().addDefault("worth.blockBreakCreative", 0.5);
+        getConfig().addDefault("worth.blockPlaceSurvival", 2.0);
+        getConfig().addDefault("worth.blockPlaceCreative", 1);
         getConfig().addDefault("worth.chat", 1.0);
         getConfig().addDefault("worth.command", 0.1);
         getConfig().addDefault("worth.fishing", 70.0);
@@ -38,8 +40,6 @@ public class ActivityCoins extends JavaPlugin {
         getConfig().addDefault("income.max", 500.0);
         getConfig().addDefault("logging", true);
         getConfig().addDefault("announce", true);
-        getConfig().addDefault("multiplier.survival", 1);
-        getConfig().addDefault("multiplier.creative", 0.5);
         getConfig().options().copyDefaults(true);
         saveConfig();
     }
