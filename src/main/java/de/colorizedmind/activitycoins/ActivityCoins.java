@@ -27,15 +27,15 @@ public class ActivityCoins extends JavaPlugin {
     private void initializeConfig() {
         getConfig().addDefault("interval", 15);
         getConfig().addDefault("activityLogSize", 5);
-        getConfig().addDefault("worth.chat", 1);
+        getConfig().addDefault("worth.blockBreak", 1.0);
+        getConfig().addDefault("worth.blockPlace", 2.0);
+        getConfig().addDefault("worth.chat", 1.0);
         getConfig().addDefault("worth.command", 0.1);
-        getConfig().addDefault("worth.blockPlace", 2);
-        getConfig().addDefault("worth.blockBreak", 1);
-        getConfig().addDefault("worth.kill", 4);
-        getConfig().addDefault("worth.fishing", 70);
-        getConfig().addDefault("worth.max", 1000);
-        getConfig().addDefault("income.min", 0);
-        getConfig().addDefault("income.max", 500);
+        getConfig().addDefault("worth.fishing", 70.0);
+        getConfig().addDefault("worth.kill", 4.0);
+        getConfig().addDefault("worth.max", 1000.0);
+        getConfig().addDefault("income.min", 0.0);
+        getConfig().addDefault("income.max", 500.0);
         getConfig().addDefault("logging", true);
         getConfig().addDefault("announce", true);
         getConfig().addDefault("multiplier.survival", 1);
@@ -50,12 +50,20 @@ public class ActivityCoins extends JavaPlugin {
 
     private void initializeListeners() {
         this.getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(activityController), this);
-        this.getServer().getPluginManager().registerEvents(new BlockBreakActivityListener(this, activityController), this);
-        this.getServer().getPluginManager().registerEvents(new BlockPlaceActivityListener(this, activityController), this);
-        this.getServer().getPluginManager().registerEvents(new ChatActivityListener(this, activityController), this);
-        this.getServer().getPluginManager().registerEvents(new CmdActivityListener(this, activityController), this);
-        this.getServer().getPluginManager().registerEvents(new FishingActivityListener(this, activityController), this);
-        this.getServer().getPluginManager().registerEvents(new KillActivityListener(this, activityController), this);
+
+        double blockBreakWorth = this.getConfig().getInt("worth.blockBreak");
+        double blockPlaceWorth = this.getConfig().getInt("worth.blockPlace");
+        double chatWorth = this.getConfig().getInt("worth.chat");
+        double cmdWorth = this.getConfig().getInt("worth.command");
+        double fishingWorth = this.getConfig().getInt("worth.fishing");
+        double killWorth = this.getConfig().getInt("worth.kill");
+
+        if (blockBreakWorth > 0.0) this.getServer().getPluginManager().registerEvents(new BlockBreakActivityListener(this, activityController), this);
+        if (blockPlaceWorth > 0.0) this.getServer().getPluginManager().registerEvents(new BlockPlaceActivityListener(this, activityController), this);
+        if (chatWorth > 0.0) this.getServer().getPluginManager().registerEvents(new ChatActivityListener(this, activityController), this);
+        if (cmdWorth > 0.0) this.getServer().getPluginManager().registerEvents(new CmdActivityListener(this, activityController), this);
+        if (fishingWorth > 0.0) this.getServer().getPluginManager().registerEvents(new FishingActivityListener(this, activityController), this);
+        if (killWorth > 0.0) this.getServer().getPluginManager().registerEvents(new KillActivityListener(this, activityController), this);
     }
 
     private void initializeEconomy() {
