@@ -21,7 +21,7 @@ public class ActivityCmd implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if(sender instanceof Player && cmd.getName().equalsIgnoreCase("activity")) {
+        if (sender instanceof Player && cmd.getName().equalsIgnoreCase("activity")) {
 
             Player player = (Player) sender;
 

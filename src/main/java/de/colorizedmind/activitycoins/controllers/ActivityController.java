@@ -62,7 +62,7 @@ public class ActivityController {
             double minIncome = plugin.getConfig().getDouble("income.min");
             double points = 0;
 
-            if(activities.containsKey(player.getUniqueId())) {
+            if (activities.containsKey(player.getUniqueId())) {
                 points = activities.get(player.getUniqueId());
             }
 
@@ -87,30 +87,30 @@ public class ActivityController {
 
     private void payout(Player player, double amount, double percent) {
         econ.depositPlayer(player, round(amount, 2));
-        if(plugin.getConfig().getBoolean("announce")) {
+        if (plugin.getConfig().getBoolean("announce")) {
             player.sendMessage(plugin.PREFIX + "Activity: " + drawChart(percent));
             player.sendMessage(plugin.PREFIX + "Payout: " + econ.format(round(amount, 2)));
         }
-        if(plugin.getConfig().getBoolean("logging")) {
+        if (plugin.getConfig().getBoolean("logging")) {
             plugin.getLogger().info("[ActivityCoins] Payout: " + econ.format(round(amount, 2)));
         }
     }
 
     public String drawChart(double percent) {
         String output = ChatColor.DARK_GRAY + "[";
-        if(percent > 0.67) {
+        if (percent > 0.67) {
             output = output + ChatColor.GREEN;
-        } else if(percent < 0.33) {
+        } else if (percent < 0.33) {
             output = output + ChatColor.RED;
         } else {
             output = output + ChatColor.YELLOW;
         }
         int length = (int) (20 * percent);
-        for(int i = 1; i <= length; i++) {
+        for (int i = 1; i <= length; i++) {
             output = output + "|";
         }
         output = output + ChatColor.DARK_GRAY;
-        for(int i = 20; i > length; i--) {
+        for (int i = 20; i > length; i--) {
             output = output + ".";
         }
         output = output + "] " + round(percent * 100, 2) + "%";
@@ -134,7 +134,7 @@ public class ActivityController {
     }
 
     private void logLocation(Player player, Location loc) {
-        if(blockLocations.get(player.getUniqueId()).size() >= plugin.getConfig().getInt("activityLogSize")) {
+        if (blockLocations.get(player.getUniqueId()).size() >= plugin.getConfig().getInt("activityLogSize")) {
             blockLocations.get(player.getUniqueId()).remove(0);
         }
         blockLocations.get(player.getUniqueId()).add(loc);
@@ -144,7 +144,7 @@ public class ActivityController {
         double maxPoints = plugin.getConfig().getDouble("worth.max");
         double points = 0.0;
 
-        if(activities.containsKey(player.getUniqueId())) {
+        if (activities.containsKey(player.getUniqueId())) {
             points = activities.get(player.getUniqueId());
         }
 
