@@ -2,6 +2,7 @@ package de.colorizedmind.activitycoins.listeners;
 
 import de.colorizedmind.activitycoins.ActivityCoins;
 import de.colorizedmind.activitycoins.controllers.ActivityController;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,11 +23,21 @@ public class KillActivityListener extends ActivityListener {
     public void onEntityDeath(EntityDeathEvent event) {
         Entity entity = event.getEntity();
 
-        if (!(entity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
+        if (!(entity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) {
+            return;
+        }
+
         EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) entity.getLastDamageCause();
 
-        if (!(damageEvent.getDamager() instanceof Player)) return;
+        if (!(damageEvent.getDamager() instanceof Player)) {
+            return;
+        }
+
         Player player = (Player) damageEvent.getDamager();
+
+        if (player.getGameMode() != GameMode.SURVIVAL) {
+            return;
+        }
 
         activityController.addActivity(
                 player,

@@ -18,8 +18,13 @@ public class FishingActivityListener extends ActivityListener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerFishEvent(PlayerFishEvent event) {
-        if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) return;
-        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+        if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) {
+            return;
+        }
+
+        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+            return;
+        }
 
         activityController.addActivity(
                 event.getPlayer(),
