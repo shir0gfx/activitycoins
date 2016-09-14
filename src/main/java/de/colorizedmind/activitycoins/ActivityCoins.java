@@ -2,7 +2,7 @@ package de.colorizedmind.activitycoins;
 
 import de.colorizedmind.activitycoins.cmds.ActivityCmd;
 import de.colorizedmind.activitycoins.controllers.ActivityController;
-import de.colorizedmind.activitycoins.listeners.ActivityListener;
+import de.colorizedmind.activitycoins.listeners.*;
 import de.colorizedmind.activitycoins.tasks.PayoutTask;
 import net.milkbowl.vault.economy.Economy;
 
@@ -49,7 +49,13 @@ public class ActivityCoins extends JavaPlugin {
     }
 
     private void initializeListeners() {
-        this.getServer().getPluginManager().registerEvents(new ActivityListener(this, activityController), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(activityController), this);
+        this.getServer().getPluginManager().registerEvents(new BlockBreakActivityListener(this, activityController), this);
+        this.getServer().getPluginManager().registerEvents(new BlockPlaceActivityListener(this, activityController), this);
+        this.getServer().getPluginManager().registerEvents(new ChatActivityListener(this, activityController), this);
+        this.getServer().getPluginManager().registerEvents(new CmdActivityListener(this, activityController), this);
+        this.getServer().getPluginManager().registerEvents(new FishingActivityListener(this, activityController), this);
+        this.getServer().getPluginManager().registerEvents(new KillActivityListener(this, activityController), this);
     }
 
     private void initializeEconomy() {
